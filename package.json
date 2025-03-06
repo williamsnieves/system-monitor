@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "start:server": "ts-node src/app/infrastructure/websocket/WebSocketServer.ts"
   },
   "dependencies": {
     "chart.js": "^4.4.8",
@@ -26,6 +27,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
     "tailwindcss": "^4.0.10",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
