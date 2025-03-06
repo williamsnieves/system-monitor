@@ -1,51 +1,39 @@
-import { useEffect, useState, useRef } from "react";
+"use client";
 
-import { Metric } from "@/app/domain/models/Metrics";
-import { WEBSOCKET_URL } from "@/config/constants";
+import { useState, useEffect } from "react";
 
-export const useWebSocket = () => {
-  const [data, setData] = useState<Metric | null>(null);
+interface SystemMetrics {
+  cpu: number;
+  ram: number;
+  traffic: number;
+}
+
+export function useWebSocket() {
+  const [data, setData] = useState<SystemMetrics | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const connectWebSocket = () => {
-      const socket = new WebSocket(WEBSOCKET_URL);
-      wsRef.current = socket;
+    const ws = new WebSocket("ws://localhost:4000");
 
-      socket.onopen = () => {
-        console.log("connected to socket");
-        setIsConnected(true);
-      };
-
-      socket.onmessage = (event) => {
-        try {
-          const data: Metric = JSON.parse(event.data);
-          setData(data);
-        } catch (error) {
-          console.error("❌ Error al parsear datos WebSocket:", error);
-        }
-      };
-
-      socket.onerror = (error) => {
-        console.error("⚠️ WebSocket Error:", error);
-      };
-
-      socket.onclose = () => {
-        console.warn("❌ WebSocket disconnected. Trying reconnect...");
-        setIsConnected(false);
-        setTimeout(connectWebSocket, 3000);
-      };
+    ws.onopen = () => {
+      console.log("Connected to WebSocket server");
+      setIsConnected(true);
     };
 
-    connectWebSocket();
+    ws.onmessage = (event) => {
+      const metrics = JSON.parse(event.data);
+      setData(metrics);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from WebSocket server");
+      setIsConnected(false);
+    };
 
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
+      ws.close();
     };
   }, []);
 
   return { data, isConnected };
-};
+}
