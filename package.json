@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start:server": "ts-node src/app/infrastructure/websocket/WebSocketServer.ts"
+    "start:server": "ts-node src/app/infrastructure/websocket/WebSocketServer.ts",
+    "test": "vitest"
   },
   "dependencies": {
     "chart.js": "^4.4.8",
@@ -20,14 +21,18 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/ws": "^8.18.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
+    "happy-dom": "^17.2.2",
     "tailwindcss": "^4.0.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.0.8"
   }
 }

@@ -2,6 +2,7 @@
 
 import Alert from "../(presentation)/components/Alert";
 import ChartComponent from "../(presentation)/components/ChartComponent";
+import Loader from "../(presentation)/components/common/Loader";
 import MetricCard from "../(presentation)/components/MetricCard";
 import { useWebSocket } from "../application/hooks/useWebSocket";
 import { checkAlerts } from "../application/services/checkAlerts";
@@ -10,7 +11,7 @@ const Dashboard = () => {
   const { data, isConnected } = useWebSocket();
 
   if (!data) {
-    return <p>Loading metrics...</p>;
+    return <Loader />;
   }
 
   const alertMessage = checkAlerts(data);
