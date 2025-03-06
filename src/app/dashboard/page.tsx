@@ -1,5 +1,6 @@
 "use client";
 
+import ChartComponent from "../(presentation)/components/ChartComponent";
 import MetricCard from "../(presentation)/components/MetricCard";
 import { useWebSocket } from "../application/hooks/useWebSocket";
 
@@ -18,6 +19,11 @@ const Dashboard = () => {
         <MetricCard title="RAM" value={data.ram} />
         <MetricCard title="Tráfico" value={data.traffic} />
       </div>
+      <ChartComponent
+        cpuData={Array(10).fill(data.cpu)}
+        ramData={Array(10).fill(data.ram)}
+        trafficData={Array(10).fill(data.traffic)}
+      />
     </div>
   );
 };
