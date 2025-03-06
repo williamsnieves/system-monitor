@@ -1,8 +1,10 @@
 "use client";
 
+import Alert from "../(presentation)/components/Alert";
 import ChartComponent from "../(presentation)/components/ChartComponent";
 import MetricCard from "../(presentation)/components/MetricCard";
 import { useWebSocket } from "../application/hooks/useWebSocket";
+import { checkAlerts } from "../application/services/checkAlerts";
 
 const Dashboard = () => {
   const { data, isConnected } = useWebSocket();
@@ -11,9 +13,13 @@ const Dashboard = () => {
     return <p>Loading metrics...</p>;
   }
 
+  const alertMessage = checkAlerts(data);
+
   return (
     <div className="p-6 bg-white dark:bg-gray-900 min-h-screen">
       <h1>System status {isConnected ? "🟢" : "🔴"}</h1>
+
+      {alertMessage && <Alert message={alertMessage} />}
       <div className="grid grid-cols-3 gap-4 my-6">
         <MetricCard title="CPU" value={data.cpu} />
         <MetricCard title="RAM" value={data.ram} />
