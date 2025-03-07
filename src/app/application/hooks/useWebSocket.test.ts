@@ -1,61 +1,56 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { vi } from "vitest";
+// useWebSocket.test.ts
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 import { useWebSocket } from "./useWebSocket";
+import { FakeWebSocket } from "../../../../tests/mocks/FakeWebSocket";
 
-describe("Web socket hook", () => {
-  let mockWebSocket: WebSocket;
+describe("useWebSocket", () => {
+  const originalWebSocket = global.WebSocket;
 
   beforeEach(() => {
-    global.WebSocket = vi.fn(() => ({
-      send: vi.fn(),
-      close: vi.fn(),
-      onopen: null,
-      onmessage: null,
-      onclose: null,
-    })) as unknown as typeof WebSocket;
-
-    mockWebSocket = new WebSocket("ws://localhost:4000");
+    global.WebSocket = FakeWebSocket;
+    FakeWebSocket.instances = [];
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
-  it("should connect to websocket correctly", async () => {
-    const { result } = renderHook(() => useWebSocket());
-
-    act(() => {
-      if (mockWebSocket.onopen) {
-        mockWebSocket.onopen(new Event("open"));
-      }
-    });
-
-    await waitFor(() => expect(result.current.isConnected).toBe(true));
+    global.WebSocket = originalWebSocket;
   });
 
-  it("should send and update metric data", async () => {
+  it("should initialize with default values", () => {
     const { result } = renderHook(() => useWebSocket());
-
-    const mockData = JSON.stringify({ cpu: 50, ram: 60, traffic: 70 });
-
-    act(() => {
-      if (mockWebSocket.onmessage) {
-        mockWebSocket.onmessage({ data: mockData } as MessageEvent);
-      }
-    });
-
-    expect(result.current.data).toEqual({ cpu: 50, ram: 60, traffic: 70 });
+    expect(result.current.data).toBeNull();
+    expect(result.current.isConnected).toBe(false);
   });
 
-  it("should disconnect websocket", async () => {
+  it("should set isConnected to true when WebSocket opens", () => {
     const { result } = renderHook(() => useWebSocket());
-
+    const fakeWs = FakeWebSocket.instances[0];
     act(() => {
-      if (mockWebSocket.onclose) {
-        mockWebSocket.onclose(new CloseEvent("close"));
-      }
+      fakeWs.simulateOpen();
     });
+    expect(result.current.isConnected).toBe(true);
+  });
 
+  it("should update data when a message is received", () => {
+    const { result } = renderHook(() => useWebSocket());
+    const fakeWs = FakeWebSocket.instances[0];
+    const testMetrics = { cpu: 25, ram: 50, traffic: 75 };
+    act(() => {
+      fakeWs.simulateMessage(testMetrics);
+    });
+    expect(result.current.data).toEqual(testMetrics);
+  });
+
+  it("should set isConnected to false when WebSocket closes", () => {
+    const { result } = renderHook(() => useWebSocket());
+    const fakeWs = FakeWebSocket.instances[0];
+    act(() => {
+      fakeWs.simulateOpen();
+    });
+    expect(result.current.isConnected).toBe(true);
+    act(() => {
+      fakeWs.simulateClose();
+    });
     expect(result.current.isConnected).toBe(false);
   });
 });
